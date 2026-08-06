@@ -37,10 +37,14 @@ export function AddBookModal({ onClose, onCreated }: { onClose: () => void; onCr
         coverUrl: meta.coverUrl ?? "",
       });
       setSource("scan");
-    } catch {
+    } catch (err) {
       setForm((f) => ({ ...f, isbn }));
       setSource("scan");
-      setLookupNotice("No metadata found for that ISBN — fill in the details below.");
+      setLookupNotice(
+        err instanceof ApiError && err.status === 404
+          ? "No metadata found for that ISBN — fill in the details below."
+          : "Couldn't reach the ISBN lookup service — fill in the details below."
+      );
     }
     setStep("confirm");
   }

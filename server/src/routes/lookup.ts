@@ -18,13 +18,29 @@ router.get("/isbn/:isbn", async (req, res) => {
   if (!isbn) throw new AppError(400, "Invalid ISBN");
 
   const url = `https://openlibrary.org/api/books?bibkeys=ISBN:${isbn}&format=json&jscmd=data`;
-  const response = await fetch(url);
-  if (!response.ok) throw new AppError(502, "Open Library lookup failed");
+
+  let response: Response;
+  try {
+    response = await fetch(url);
+  } catch (err) {
+    console.error(`[isbn-lookup] network error reaching Open Library for ISBN ${isbn}:`, err);
+    throw new AppError(502, "Couldn't reach the ISBN lookup service — enter details manually");
+  }
+
+  if (!response.ok) {
+    console.error(`[isbn-lookup] Open Library returned HTTP ${response.status} for ISBN ${isbn}`);
+    throw new AppError(502, "ISBN lookup service returned an error — enter details manually");
+  }
 
   const data = (await response.json()) as Record<string, OpenLibraryEntry>;
   const entry = data[`ISBN:${isbn}`];
-  if (!entry) throw new AppError(404, "No metadata found for this ISBN — enter it manually");
 
+  if (!entry) {
+    console.log(`[isbn-lookup] MISS for ISBN ${isbn} — Open Library has no record of it`);
+    throw new AppError(404, "No metadata found for this ISBN — enter it manually");
+  }
+
+  console.log(`[isbn-lookup] HIT for ISBN ${isbn}: "${entry.title}" by ${entry.authors?.[0]?.name ?? "unknown"}`);
   res.json({
     isbn,
     title: entry.title,

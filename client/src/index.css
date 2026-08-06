@@ -1,0 +1,44 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+@import "tailwindcss";
+
+/*
+  Pink pastel theme — deliberately restrained (neat, not candy-colored).
+  Sourced via the ui-ux-pro-max design skill: a blush background with white
+  cards, one rose accent color, and semantic status colors that stay
+  distinguishable from the pink accent (green/amber/red).
+*/
+@theme {
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+
+  --color-page: #fdf2f8;
+  --color-surface: #ffffff;
+  --color-border-soft: #f7d6e6;
+
+  --color-primary: #db2777;
+  --color-primary-hover: #be185d;
+  --color-primary-soft: #fce7f3;
+
+  --color-ink: #1f2937;
+  --color-ink-muted: #6b7280;
+  --color-plum: #831843;
+
+  --color-success: #16a34a;
+  --color-success-soft: #dcfce7;
+  --color-warning: #d97706;
+  --color-warning-soft: #fef3c7;
+  --color-danger: #dc2626;
+  --color-danger-soft: #fee2e2;
+}
+
+@layer base {
+  body {
+    @apply bg-page text-ink antialiased m-0;
+    font-family: var(--font-sans);
+  }
+
+  h1,
+  h2,
+  h3 {
+    @apply text-plum font-semibold;
+  }
+}

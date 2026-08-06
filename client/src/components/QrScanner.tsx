@@ -19,15 +19,15 @@ export function QrScanner({ onScan, active, boxAspect = "square" }: QrScannerPro
   useEffect(() => {
     if (!active) return;
     setCameraError(null);
+    // Scoped tightly per context: books print a small supplemental EAN-8
+    // price add-on barcode right next to the real ISBN barcode, and if EAN_8
+    // is left enabled the decoder sometimes locks onto that instead.
     const scanner = new Html5Qrcode(containerId, {
       verbose: false,
-      formatsToSupport: [
-        Html5QrcodeSupportedFormats.QR_CODE,
-        Html5QrcodeSupportedFormats.EAN_13,
-        Html5QrcodeSupportedFormats.EAN_8,
-        Html5QrcodeSupportedFormats.UPC_A,
-        Html5QrcodeSupportedFormats.UPC_E,
-      ],
+      formatsToSupport:
+        boxAspect === "wide"
+          ? [Html5QrcodeSupportedFormats.EAN_13]
+          : [Html5QrcodeSupportedFormats.QR_CODE],
     });
     let stopped = false;
 

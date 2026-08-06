@@ -23,9 +23,14 @@ export function AddBookModal({ onClose, onCreated }: { onClose: () => void; onCr
   const [newCopy, setNewCopy] = useState<BookCopy | null>(null);
 
   async function handleIsbnScanned(code: string) {
+    const isbn = code.replace(/[^0-9Xx]/g, "");
+    // A real ISBN is always 10 or 13 digits. Anything else is almost
+    // certainly a misread of a different barcode nearby — ignore it and
+    // keep the camera running rather than surfacing a confusing error.
+    if (isbn.length !== 10 && isbn.length !== 13) return;
+
     setScanning(false);
     setLookupNotice(null);
-    const isbn = code.replace(/[^0-9Xx]/g, "");
     try {
       const meta = await api.get<{ title?: string; author?: string; coverUrl?: string; isbn: string }>(
         `/api/lookup/isbn/${isbn}`

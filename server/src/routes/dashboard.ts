@@ -1,9 +1,9 @@
 import { Router } from "express";
 import { pool } from "../db/pool";
-import { requireAuth } from "../middleware/requireAuth";
+import { requireAdmin } from "../middleware/requireAuth";
 
 const router = Router();
-router.use(requireAuth);
+router.use(requireAdmin);
 
 router.get("/summary", async (req, res) => {
   const [books, copies, active, dueSoon, overdue] = await Promise.all([

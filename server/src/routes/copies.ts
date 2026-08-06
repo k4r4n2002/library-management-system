@@ -1,11 +1,11 @@
 import { Router } from "express";
 import QRCode from "qrcode";
 import { pool } from "../db/pool";
-import { requireAuth } from "../middleware/requireAuth";
+import { requireAdmin } from "../middleware/requireAuth";
 import { AppError } from "../errors";
 
 const router = Router();
-router.use(requireAuth);
+router.use(requireAdmin);
 
 // Rendered on demand from the short text code — never stored as a file.
 // See SYSTEM_DESIGN.md section 8.4.

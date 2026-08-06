@@ -1,21 +1,42 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 
-export interface AuthedRequest extends Request {
-  admin?: { email: string };
+export type Role = "admin" | "member";
+
+export interface AuthPayload {
+  role: Role;
+  email?: string; // admin
+  memberId?: string; // member
+  name?: string; // member
 }
 
-export function requireAuth(req: AuthedRequest, res: Response, next: NextFunction) {
+export interface AuthedRequest extends Request {
+  auth?: AuthPayload;
+}
+
+function verify(req: AuthedRequest): AuthPayload | null {
   const header = req.headers.authorization;
   const token = header?.startsWith("Bearer ") ? header.slice(7) : undefined;
-  if (!token) {
-    return res.status(401).json({ error: "Not authenticated" });
-  }
+  if (!token) return null;
   try {
-    const payload = jwt.verify(token, process.env.JWT_SECRET!) as { email: string };
-    req.admin = { email: payload.email };
-    next();
+    return jwt.verify(token, process.env.JWT_SECRET!) as AuthPayload;
   } catch {
-    return res.status(401).json({ error: "Invalid or expired session" });
+    return null;
   }
 }
+
+function requireRole(role: Role | null) {
+  return (req: AuthedRequest, res: Response, next: NextFunction) => {
+    const payload = verify(req);
+    if (!payload || (role && payload.role !== role)) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+    req.auth = payload;
+    next();
+  };
+}
+
+export const requireAdmin = requireRole("admin");
+export const requireMember = requireRole("member");
+// Either role — used by routes both surfaces need (e.g. the shared genre list).
+export const requireAnyAuth = requireRole(null);

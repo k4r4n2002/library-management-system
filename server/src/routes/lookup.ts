@@ -1,9 +1,9 @@
 import { Router } from "express";
-import { requireAuth } from "../middleware/requireAuth";
+import { requireAdmin } from "../middleware/requireAuth";
 import { AppError } from "../errors";
 
 const router = Router();
-router.use(requireAuth);
+router.use(requireAdmin);
 
 interface BookMeta {
   title?: string;

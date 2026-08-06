@@ -1,11 +1,11 @@
 import { Router } from "express";
 import { z } from "zod";
 import { pool } from "../db/pool";
-import { requireAuth } from "../middleware/requireAuth";
+import { requireAdmin } from "../middleware/requireAuth";
 import { AppError } from "../errors";
 
 const router = Router();
-router.use(requireAuth);
+router.use(requireAdmin);
 
 router.get("/", async (req, res) => {
   const status = req.query.status as string | undefined;

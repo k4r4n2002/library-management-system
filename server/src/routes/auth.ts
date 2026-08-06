@@ -2,7 +2,7 @@ import { Router } from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { z } from "zod";
-import { requireAuth, AuthedRequest } from "../middleware/requireAuth";
+import { requireAdmin, AuthedRequest } from "../middleware/requireAuth";
 import { AppError } from "../errors";
 
 const router = Router();
@@ -29,12 +29,12 @@ router.post("/login", async (req, res) => {
     throw new AppError(401, "Invalid email or password");
   }
 
-  const token = jwt.sign({ email: adminEmail }, process.env.JWT_SECRET!, { expiresIn: "7d" });
+  const token = jwt.sign({ email: adminEmail, role: "admin" }, process.env.JWT_SECRET!, { expiresIn: "7d" });
   res.json({ email: adminEmail, token });
 });
 
-router.get("/me", requireAuth, (req: AuthedRequest, res) => {
-  res.json({ email: req.admin!.email });
+router.get("/me", requireAdmin, (req: AuthedRequest, res) => {
+  res.json({ email: req.auth!.email });
 });
 
 export default router;

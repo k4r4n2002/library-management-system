@@ -1,4 +1,10 @@
-import { Pool } from "pg";
+import { Pool, types } from "pg";
+
+// node-postgres otherwise parses DATE columns into JS Date objects at
+// local midnight, which then serialize to a different UTC calendar date for
+// any positive UTC offset (e.g. IST) — a real "event shows up a day early"
+// bug. Keep DATE columns as plain "YYYY-MM-DD" strings instead.
+types.setTypeParser(types.builtins.DATE, (value) => value);
 
 const connectionString = process.env.DATABASE_URL;
 if (!connectionString) {

@@ -11,6 +11,12 @@ import membersRouter from "./routes/members";
 import scanRouter from "./routes/scan";
 import loansRouter from "./routes/loans";
 import dashboardRouter from "./routes/dashboard";
+import genresRouter from "./routes/genres";
+import memberAuthRouter from "./routes/memberAuth";
+import catalogueRouter from "./routes/catalogue";
+import myLoansRouter from "./routes/myLoans";
+import blogRouter from "./routes/blog";
+import bulletinRouter from "./routes/bulletin";
 
 const app = express();
 
@@ -27,6 +33,12 @@ app.use("/api/members", membersRouter);
 app.use("/api/scan", scanRouter);
 app.use("/api/loans", loansRouter);
 app.use("/api/dashboard", dashboardRouter);
+app.use("/api/genres", genresRouter);
+app.use("/api/member-auth", memberAuthRouter);
+app.use("/api/catalogue", catalogueRouter);
+app.use("/api/my-loans", myLoansRouter);
+app.use("/api/blog", blogRouter);
+app.use("/api/bulletin", bulletinRouter);
 
 app.use((req, res) => {
   res.status(404).json({ error: "Not found" });

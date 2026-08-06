@@ -1,10 +1,10 @@
 import { Router } from "express";
 import { pool } from "../db/pool";
-import { requireAuth } from "../middleware/requireAuth";
+import { requireAdmin } from "../middleware/requireAuth";
 import { AppError } from "../errors";
 
 const router = Router();
-router.use(requireAuth);
+router.use(requireAdmin);
 
 // The single "one QR, two meanings" endpoint (SYSTEM_DESIGN.md section 8.2):
 // the caller doesn't say whether it's lending or returning — the copy's

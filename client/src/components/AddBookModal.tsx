@@ -117,7 +117,7 @@ export function AddBookModal({ onClose, onCreated }: { onClose: () => void; onCr
           <p className="text-center text-sm text-ink-muted">
             Point the camera at the book's ISBN barcode.
           </p>
-          <QrScanner active={scanning} onScan={handleIsbnScanned} />
+          <QrScanner active={scanning} onScan={handleIsbnScanned} boxAspect="wide" />
         </div>
       )}
 

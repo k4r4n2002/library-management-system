@@ -1,10 +1,16 @@
 import { useEffect, useRef, useState } from "react";
-import { Html5Qrcode } from "html5-qrcode";
+import { Html5Qrcode, Html5QrcodeSupportedFormats } from "html5-qrcode";
 
-// Same component decodes both formats html5-qrcode supports out of the box:
-// internal circulation QR codes and printed ISBN barcodes (EAN-13) — the
-// caller decides what the decoded string means.
-export function QrScanner({ onScan, active }: { onScan: (code: string) => void; active: boolean }) {
+interface QrScannerProps {
+  onScan: (code: string) => void;
+  active: boolean;
+  // Circulation QR codes are square; printed ISBN barcodes (EAN-13/UPC) are
+  // wide rectangles — the scan crop region needs to match, or a barcode's
+  // width gets cut off before it ever reaches the decoder.
+  boxAspect?: "square" | "wide";
+}
+
+export function QrScanner({ onScan, active, boxAspect = "square" }: QrScannerProps) {
   const containerId = useRef(`qr-scanner-${Math.random().toString(36).slice(2)}`).current;
   const onScanRef = useRef(onScan);
   onScanRef.current = onScan;
@@ -13,13 +19,25 @@ export function QrScanner({ onScan, active }: { onScan: (code: string) => void; 
   useEffect(() => {
     if (!active) return;
     setCameraError(null);
-    const scanner = new Html5Qrcode(containerId, { verbose: false });
+    const scanner = new Html5Qrcode(containerId, {
+      verbose: false,
+      formatsToSupport: [
+        Html5QrcodeSupportedFormats.QR_CODE,
+        Html5QrcodeSupportedFormats.EAN_13,
+        Html5QrcodeSupportedFormats.EAN_8,
+        Html5QrcodeSupportedFormats.UPC_A,
+        Html5QrcodeSupportedFormats.UPC_E,
+      ],
+    });
     let stopped = false;
 
     scanner
       .start(
         { facingMode: "environment" },
-        { fps: 10, qrbox: { width: 240, height: 240 } },
+        {
+          fps: 10,
+          qrbox: boxAspect === "wide" ? { width: 280, height: 140 } : { width: 240, height: 240 },
+        },
         (decodedText) => {
           if (stopped) return;
           onScanRef.current(decodedText);
@@ -39,7 +57,7 @@ export function QrScanner({ onScan, active }: { onScan: (code: string) => void; 
         .then(() => scanner.clear())
         .catch(() => {});
     };
-  }, [active, containerId]);
+  }, [active, containerId, boxAspect]);
 
   if (!active) return null;
 

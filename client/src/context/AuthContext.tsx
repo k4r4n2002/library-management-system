@@ -1,11 +1,11 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
-import { api } from "../lib/api";
+import { api, getToken, setToken, clearToken } from "../lib/api";
 
 interface AuthState {
   email: string | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  logout: () => Promise<void>;
+  logout: () => void;
 }
 
 const AuthContext = createContext<AuthState | null>(null);
@@ -15,20 +15,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!getToken()) {
+      setLoading(false);
+      return;
+    }
     api
       .get<{ email: string }>("/api/auth/me")
       .then((res) => setEmail(res.email))
-      .catch(() => setEmail(null))
+      .catch(() => clearToken())
       .finally(() => setLoading(false));
   }, []);
 
   async function login(email: string, password: string) {
-    const res = await api.post<{ email: string }>("/api/auth/login", { email, password });
+    const res = await api.post<{ email: string; token: string }>("/api/auth/login", { email, password });
+    setToken(res.token);
     setEmail(res.email);
   }
 
-  async function logout() {
-    await api.post("/api/auth/logout");
+  function logout() {
+    clearToken();
     setEmail(null);
   }
 

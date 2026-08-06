@@ -6,21 +6,6 @@ import { requireAuth, AuthedRequest } from "../middleware/requireAuth";
 import { AppError } from "../errors";
 
 const router = Router();
-const COOKIE_NAME = "session";
-const isProd = process.env.NODE_ENV === "production";
-
-// Locally, client and server are both on `localhost` (different ports only),
-// which browsers treat as the same "site" — sameSite: "lax" works fine there.
-// In production they're on different domains (e.g. two different Render
-// subdomains, which sit on the public suffix list precisely so unrelated
-// tenants can't share cookies), making every API call cross-site from the
-// browser's perspective. Cross-site fetch() requests only carry a cookie
-// when it's sameSite: "none", and "none" requires secure: true by spec.
-const cookieOptions = {
-  httpOnly: true,
-  secure: isProd,
-  sameSite: (isProd ? "none" : "lax") as "none" | "lax",
-};
 
 const loginSchema = z.object({
   email: z.string().email(),
@@ -45,13 +30,7 @@ router.post("/login", async (req, res) => {
   }
 
   const token = jwt.sign({ email: adminEmail }, process.env.JWT_SECRET!, { expiresIn: "7d" });
-  res.cookie(COOKIE_NAME, token, { ...cookieOptions, maxAge: 7 * 24 * 60 * 60 * 1000 });
-  res.json({ email: adminEmail });
-});
-
-router.post("/logout", (req, res) => {
-  res.clearCookie(COOKIE_NAME, cookieOptions);
-  res.json({ ok: true });
+  res.json({ email: adminEmail, token });
 });
 
 router.get("/me", requireAuth, (req: AuthedRequest, res) => {

@@ -1,17 +1,20 @@
 import { useEffect, useState } from "react";
-import { qrImageUrl } from "../lib/api";
+import { qrImageUrl, getToken } from "../lib/api";
 
 // Fetched as an authenticated blob rather than a plain <img src>, since the
-// QR endpoint sits behind requireAuth and the session lives in an httpOnly
-// cookie (a bare <img> tag wouldn't reliably send it cross-origin).
+// QR endpoint sits behind requireAuth and a bare <img> tag has no way to
+// attach an Authorization header.
 export function QrImage({ copyId, size = 160 }: { copyId: string; size?: number }) {
   const [src, setSrc] = useState<string | null>(null);
 
   useEffect(() => {
     let objectUrl: string | null = null;
     let cancelled = false;
+    const token = getToken();
 
-    fetch(qrImageUrl(copyId), { credentials: "include" })
+    fetch(qrImageUrl(copyId), {
+      headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+    })
       .then((res) => res.blob())
       .then((blob) => {
         if (cancelled) return;

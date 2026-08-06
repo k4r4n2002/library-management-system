@@ -1,5 +1,19 @@
 export const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:4000";
 
+const TOKEN_KEY = "library_token";
+
+export function getToken(): string | null {
+  return localStorage.getItem(TOKEN_KEY);
+}
+
+export function setToken(token: string) {
+  localStorage.setItem(TOKEN_KEY, token);
+}
+
+export function clearToken() {
+  localStorage.removeItem(TOKEN_KEY);
+}
+
 export class ApiError extends Error {
   status: number;
   details?: unknown;
@@ -12,11 +26,12 @@ export class ApiError extends Error {
 }
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
+  const token = getToken();
   const res = await fetch(`${API_URL}${path}`, {
     ...options,
-    credentials: "include",
     headers: {
       ...(options.body ? { "Content-Type": "application/json" } : {}),
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...options.headers,
     },
   });

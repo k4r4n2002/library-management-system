@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { PlusIcon } from "@heroicons/react/24/outline";
-import { api } from "../lib/api";
+import { adminApi as api } from "../lib/api";
 import type { Member } from "../lib/types";
 import { Input } from "./Field";
 import { Button } from "./Button";
@@ -11,6 +11,7 @@ export function MemberPicker({ onSelect }: { onSelect: (member: Member) => void 
   const [showAddForm, setShowAddForm] = useState(false);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
+  const [created, setCreated] = useState<Member | null>(null);
 
   useEffect(() => {
     const handle = setTimeout(() => {
@@ -22,7 +23,23 @@ export function MemberPicker({ onSelect }: { onSelect: (member: Member) => void 
   async function handleAdd() {
     if (!name.trim()) return;
     const member = await api.post<Member>("/api/members", { name, phone: phone || undefined });
-    onSelect(member);
+    setCreated(member);
+  }
+
+  if (created) {
+    return (
+      <div className="space-y-3 rounded-xl border border-border-soft p-4 text-center">
+        <p className="text-sm text-ink-muted">
+          Pass this passcode along to {created.name} so they can sign in to the catalogue later.
+        </p>
+        <p className="rounded-xl bg-primary-soft px-6 py-3 text-2xl font-bold tracking-widest text-primary">
+          {created.passcode}
+        </p>
+        <Button type="button" onClick={() => onSelect(created)} className="w-full">
+          Continue
+        </Button>
+      </div>
+    );
   }
 
   return (

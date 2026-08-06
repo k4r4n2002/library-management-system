@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { ClockIcon } from "@heroicons/react/24/outline";
-import { api } from "../lib/api";
-import type { ScanLog } from "../lib/types";
-import { Card } from "../components/Card";
-import { Badge } from "../components/Badge";
-import { EmptyState } from "../components/EmptyState";
+import { adminApi as api } from "../../lib/api";
+import type { ScanLog } from "../../lib/types";
+import { Card } from "../../components/Card";
+import { Badge } from "../../components/Badge";
+import { EmptyState } from "../../components/EmptyState";
 
 const EVENT_LABEL: Record<ScanLog["event_type"], string> = {
   book_ingest: "Book added",

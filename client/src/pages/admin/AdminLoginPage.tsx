@@ -1,18 +1,18 @@
 import { useState, type FormEvent } from "react";
 import { Navigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
-import { Button } from "../components/Button";
-import { Field, Input } from "../components/Field";
-import { Card } from "../components/Card";
-import { ApiError } from "../lib/api";
+import { useAdminAuth } from "../../context/AdminAuthContext";
+import { Button } from "../../components/Button";
+import { Field, Input } from "../../components/Field";
+import { Card } from "../../components/Card";
+import { ApiError } from "../../lib/api";
 
-export function LoginPage() {
-  const { email, loading, login } = useAuth();
+export function AdminLoginPage() {
+  const { email, loading, login } = useAdminAuth();
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
-  if (!loading && email) return <Navigate to="/" replace />;
+  if (!loading && email) return <Navigate to="/admin" replace />;
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();

@@ -6,10 +6,10 @@ import {
   RectangleStackIcon,
   UsersIcon,
 } from "@heroicons/react/24/outline";
-import { api } from "../lib/api";
-import type { DashboardSummary, Loan } from "../lib/types";
-import { Card } from "../components/Card";
-import { LoanStatusBadge } from "../components/Badge";
+import { adminApi as api } from "../../lib/api";
+import type { DashboardSummary, Loan } from "../../lib/types";
+import { Card } from "../../components/Card";
+import { LoanStatusBadge } from "../../components/Badge";
 
 export function DashboardPage() {
   const [summary, setSummary] = useState<DashboardSummary | null>(null);

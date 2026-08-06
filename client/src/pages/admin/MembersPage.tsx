@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { PlusIcon, UsersIcon } from "@heroicons/react/24/outline";
-import { api } from "../lib/api";
-import type { Member } from "../lib/types";
-import { Card } from "../components/Card";
-import { Button } from "../components/Button";
-import { Field, Input } from "../components/Field";
-import { Modal } from "../components/Modal";
-import { EmptyState } from "../components/EmptyState";
+import { adminApi as api } from "../../lib/api";
+import type { Member } from "../../lib/types";
+import { Card } from "../../components/Card";
+import { Button } from "../../components/Button";
+import { Field, Input } from "../../components/Field";
+import { Modal } from "../../components/Modal";
+import { EmptyState } from "../../components/EmptyState";
 
 export function MembersPage() {
   const [members, setMembers] = useState<Member[] | null>(null);
@@ -73,15 +73,40 @@ function AddMemberModal({ onClose, onCreated }: { onClose: () => void; onCreated
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [created, setCreated] = useState<Member | null>(null);
 
   async function handleSubmit() {
     setSubmitting(true);
     try {
-      await api.post("/api/members", { name, phone: phone || undefined, email: email || undefined });
-      onCreated();
+      const member = await api.post<Member>("/api/members", {
+        name,
+        phone: phone || undefined,
+        email: email || undefined,
+      });
+      setCreated(member);
     } finally {
       setSubmitting(false);
     }
+  }
+
+  if (created) {
+    return (
+      <Modal title="Member added" onClose={onCreated}>
+        <div className="flex flex-col items-center gap-3 text-center">
+          <p className="text-sm text-ink-muted">
+            Pass this passcode along to {created.name} — combined with their name, it's how they'll sign in to
+            browse the catalogue, see their card, and post to the blog/bulletin board.
+          </p>
+          <p className="rounded-xl bg-primary-soft px-6 py-3 text-3xl font-bold tracking-widest text-primary">
+            {created.passcode}
+          </p>
+          <p className="text-xs text-ink-muted">This is shown once — it won't be visible again after you close this.</p>
+          <Button onClick={onCreated} className="w-full">
+            Done
+          </Button>
+        </div>
+      </Modal>
+    );
   }
 
   return (

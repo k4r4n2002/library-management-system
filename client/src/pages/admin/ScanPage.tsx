@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { CheckCircleIcon, ExclamationCircleIcon, QrCodeIcon } from "@heroicons/react/24/outline";
-import { QrScanner } from "../components/QrScanner";
-import { Card } from "../components/Card";
-import { Button } from "../components/Button";
-import { MemberPicker } from "../components/MemberPicker";
-import { CopyStatusBadge } from "../components/Badge";
-import { api, ApiError } from "../lib/api";
-import type { Member, ResolveResult, Loan } from "../lib/types";
+import { QrScanner } from "../../components/QrScanner";
+import { Card } from "../../components/Card";
+import { Button } from "../../components/Button";
+import { MemberPicker } from "../../components/MemberPicker";
+import { CopyStatusBadge } from "../../components/Badge";
+import { adminApi as api, ApiError } from "../../lib/api";
+import type { Member, ResolveResult, Loan } from "../../lib/types";
 
 type ViewState =
   | { kind: "scanning" }

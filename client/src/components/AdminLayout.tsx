@@ -8,25 +8,25 @@ import {
   UsersIcon,
   ArrowRightStartOnRectangleIcon,
 } from "@heroicons/react/24/outline";
-import { useAuth } from "../context/AuthContext";
+import { useAdminAuth } from "../context/AdminAuthContext";
 
 const navItems = [
-  { to: "/", label: "Dashboard", end: true, icon: HomeIcon },
-  { to: "/books", label: "Books", icon: BookOpenIcon },
-  { to: "/scan", label: "Scan", icon: QrCodeIcon },
-  { to: "/members", label: "Members", icon: UsersIcon },
-  { to: "/logs", label: "Activity", icon: ClockIcon },
+  { to: "/admin", label: "Dashboard", end: true, icon: HomeIcon },
+  { to: "/admin/books", label: "Books", icon: BookOpenIcon },
+  { to: "/admin/scan", label: "Scan", icon: QrCodeIcon },
+  { to: "/admin/members", label: "Members", icon: UsersIcon },
+  { to: "/admin/logs", label: "Activity", icon: ClockIcon },
 ];
 
-export function Layout({ children }: { children: ReactNode }) {
-  const { email, logout } = useAuth();
+export function AdminLayout({ children }: { children: ReactNode }) {
+  const { email, logout } = useAdminAuth();
 
   return (
     <div className="min-h-screen bg-page">
       <header className="sticky top-0 z-10 border-b border-border-soft bg-surface/90 backdrop-blur">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-6 py-4">
           <div className="flex items-center gap-8">
-            <span className="text-lg font-bold text-plum">Library</span>
+            <span className="text-lg font-bold text-plum">Library Admin</span>
             <nav className="flex flex-wrap gap-1">
               {navItems.map((item) => (
                 <NavLink

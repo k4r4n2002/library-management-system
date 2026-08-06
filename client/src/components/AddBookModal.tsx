@@ -5,18 +5,20 @@ import { Button } from "./Button";
 import { Field, Input } from "./Field";
 import { QrScanner } from "./QrScanner";
 import { QrImage } from "./QrImage";
-import { api, ApiError } from "../lib/api";
+import { adminApi as api, ApiError } from "../lib/api";
 import type { Book, BookCopy } from "../lib/types";
 
 type Mode = "scan" | "manual";
 type Step = "capture" | "confirm" | "done";
+
+const initialForm = { title: "", author: "", isbn: "", coverUrl: "", genres: "", shelfLocation: "", notes: "" };
 
 export function AddBookModal({ onClose, onCreated }: { onClose: () => void; onCreated: () => void }) {
   const [mode, setMode] = useState<Mode>("scan");
   const [step, setStep] = useState<Step>("capture");
   const [scanning, setScanning] = useState(true);
   const [lookupNotice, setLookupNotice] = useState<string | null>(null);
-  const [form, setForm] = useState({ title: "", author: "", isbn: "", coverUrl: "" });
+  const [form, setForm] = useState(initialForm);
   const [source, setSource] = useState<"scan" | "manual">("manual");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -35,12 +37,13 @@ export function AddBookModal({ onClose, onCreated }: { onClose: () => void; onCr
       const meta = await api.get<{ title?: string; author?: string; coverUrl?: string; isbn: string }>(
         `/api/lookup/isbn/${isbn}`
       );
-      setForm({
+      setForm((f) => ({
+        ...f,
         title: meta.title ?? "",
         author: meta.author ?? "",
         isbn: meta.isbn,
         coverUrl: meta.coverUrl ?? "",
-      });
+      }));
       setSource("scan");
     } catch (err) {
       setForm((f) => ({ ...f, isbn }));
@@ -58,12 +61,21 @@ export function AddBookModal({ onClose, onCreated }: { onClose: () => void; onCr
     setSubmitting(true);
     setError(null);
     try {
+      const genres = form.genres
+        .split(",")
+        .map((g) => g.trim())
+        .filter(Boolean)
+        .slice(0, 3);
+
       const result = await api.post<Book & { copy: BookCopy }>("/api/books", {
         title: form.title,
         author: form.author,
         isbn: form.isbn || undefined,
         coverUrl: form.coverUrl || undefined,
         source,
+        genres: genres.length ? genres : undefined,
+        shelfLocation: form.shelfLocation.trim() || undefined,
+        notes: form.notes.trim() || undefined,
       });
       setNewCopy(result.copy);
       setStep("done");
@@ -79,7 +91,8 @@ export function AddBookModal({ onClose, onCreated }: { onClose: () => void; onCr
       <Modal title="Book added" onClose={onCreated}>
         <div className="flex flex-col items-center gap-4 text-center">
           <p className="text-sm text-ink-muted">
-            Print this QR and stick it on the copy — it's what you'll scan to lend and return it.
+            Copy #{newCopy.display_id} — print this QR and stick it on the copy, it's what you'll scan to lend
+            and return it.
           </p>
           <QrImage copyId={newCopy.id} size={200} />
           <Button onClick={onCreated} className="w-full">
@@ -131,7 +144,7 @@ export function AddBookModal({ onClose, onCreated }: { onClose: () => void; onCr
       )}
 
       {step === "confirm" && (
-        <div className="space-y-4">
+        <div className="max-h-[70vh] space-y-4 overflow-y-auto pr-1">
           {lookupNotice && (
             <p className="rounded-xl bg-warning-soft px-3 py-2 text-sm font-medium text-warning">
               {lookupNotice}
@@ -145,6 +158,19 @@ export function AddBookModal({ onClose, onCreated }: { onClose: () => void; onCr
           </Field>
           <Field label="ISBN" hint="Optional, but lets a second copy join the same title.">
             <Input value={form.isbn} onChange={(e) => setForm({ ...form, isbn: e.target.value })} />
+          </Field>
+          <Field label="Genres" hint="Up to 3, comma-separated (e.g. Fiction, Fantasy, Children's)">
+            <Input value={form.genres} onChange={(e) => setForm({ ...form, genres: e.target.value })} />
+          </Field>
+          <Field label="Shelf location" hint="Optional">
+            <Input
+              value={form.shelfLocation}
+              onChange={(e) => setForm({ ...form, shelfLocation: e.target.value })}
+              placeholder="e.g. Living room shelf 2"
+            />
+          </Field>
+          <Field label="Notes" hint="Optional">
+            <Input value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} />
           </Field>
           {error && <p className="text-sm font-medium text-danger">{error}</p>}
           <div className="flex gap-2">

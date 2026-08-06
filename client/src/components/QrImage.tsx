@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { qrImageUrl, getToken } from "../lib/api";
+import { qrImageUrl, adminTokenStore } from "../lib/api";
 
 // Fetched as an authenticated blob rather than a plain <img src>, since the
 // QR endpoint sits behind requireAuth and a bare <img> tag has no way to
@@ -10,7 +10,7 @@ export function QrImage({ copyId, size = 160 }: { copyId: string; size?: number 
   useEffect(() => {
     let objectUrl: string | null = null;
     let cancelled = false;
-    const token = getToken();
+    const token = adminTokenStore.get();
 
     fetch(qrImageUrl(copyId), {
       headers: token ? { Authorization: `Bearer ${token}` } : undefined,

@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import { PlusIcon, BookOpenIcon } from "@heroicons/react/24/outline";
-import { api } from "../lib/api";
-import type { Book } from "../lib/types";
-import { Card } from "../components/Card";
-import { Button } from "../components/Button";
-import { Badge } from "../components/Badge";
-import { EmptyState } from "../components/EmptyState";
-import { AddBookModal } from "../components/AddBookModal";
-import { CopiesModal } from "../components/CopiesModal";
+import { adminApi as api } from "../../lib/api";
+import type { Book } from "../../lib/types";
+import { Card } from "../../components/Card";
+import { Button } from "../../components/Button";
+import { Badge } from "../../components/Badge";
+import { EmptyState } from "../../components/EmptyState";
+import { AddBookModal } from "../../components/AddBookModal";
+import { CopiesModal } from "../../components/CopiesModal";
 
 export function BooksPage() {
   const [books, setBooks] = useState<Book[] | null>(null);
@@ -50,6 +50,15 @@ export function BooksPage() {
           >
             <h3 className="text-base font-semibold text-plum">{book.title}</h3>
             <p className="text-sm text-ink-muted">{book.author}</p>
+            {book.genres && book.genres.length > 0 && (
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {book.genres.map((g) => (
+                  <Badge key={g} tone="neutral">
+                    {g}
+                  </Badge>
+                ))}
+              </div>
+            )}
             <div className="mt-3 flex items-center gap-2">
               <Badge tone={book.available_count > 0 ? "success" : "primary"}>
                 {book.available_count} of {book.copy_count} available

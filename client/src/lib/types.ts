@@ -9,6 +9,7 @@ export interface Book {
   created_at: string;
   copy_count: number;
   available_count: number;
+  genres?: string[];
 }
 
 export interface BookCopy {
@@ -17,6 +18,9 @@ export interface BookCopy {
   qr_code: string;
   status: CopyStatus;
   added_at: string;
+  display_id: number;
+  shelf_location: string | null;
+  notes: string | null;
 }
 
 export interface BookDetail {
@@ -27,6 +31,7 @@ export interface BookDetail {
   cover_url: string | null;
   created_at: string;
   copies: BookCopy[];
+  genres: string[];
 }
 
 export interface Member {
@@ -35,6 +40,7 @@ export interface Member {
   phone: string | null;
   email: string | null;
   created_at: string;
+  passcode?: string;
 }
 
 export interface Loan {
@@ -77,4 +83,26 @@ export interface ResolveResult {
   copy: { id: string; qrCode: string; status: CopyStatus };
   book: { id: string; title: string; author: string; coverUrl: string | null };
   activeLoan: (Loan & { member_name: string; member_phone: string | null }) | null;
+}
+
+export interface Genre {
+  id: string;
+  name: string;
+}
+
+export interface Post {
+  id: string;
+  member_id: string | null;
+  author_name: string | null;
+  title: string | null;
+  body: string | null;
+  created_at: string;
+  updated_at: string | null;
+}
+
+export interface BulletinPost extends Post {
+  title: string;
+  event_date: string | null;
+  event_time: string | null;
+  location: string | null;
 }
